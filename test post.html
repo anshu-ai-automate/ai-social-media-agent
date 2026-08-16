@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Automation Post Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f3f4f6;
+      color: #1f2937;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      max-width: 640px;
+      width: 100%;
+      padding: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #e0e7ff;
+      color: #4338ca;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #111827;
+    }
+
+    p.subtitle {
+      color: #6b7280;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .field {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .required {
+      color: #dc2626;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fafafa;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      background: #ffffff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .file-field {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+      background: #fafafa;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .file-field:hover,
+    .file-field.dragover {
+      border-color: #6366f1;
+      background: #eef2ff;
+    }
+
+    .file-field input[type="file"] {
+      display: none;
+    }
+
+    .file-label {
+      color: #6b7280;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .file-label strong {
+      color: #4338ca;
+    }
+
+    #fileName {
+      display: none;
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: #059669;
+      font-weight: 500;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-top: 0.4rem;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.85rem;
+      background: #4338ca;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button[type="submit"]:hover {
+      background: #3730a3;
+    }
+
+    button[type="submit"]:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #status,
+    #postStatus {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    #status.success,
+    #postStatus.success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    #status.error,
+    #postStatus.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    #status.loading,
+    #postStatus.loading {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+
+    #postContent {
+      min-height: 280px;
+      line-height: 1.6;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    button.btn-accept,
+    button.btn-reject {
+      flex: 1;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button.btn-accept {
+      background: #059669;
+      color: #ffffff;
+    }
+
+    button.btn-accept:hover {
+      background: #047857;
+    }
+
+    button.btn-reject {
+      background: #dc2626;
+      color: #ffffff;
+    }
+
+    button.btn-reject:hover {
+      background: #b91c1c;
+    }
+
+    button.btn-accept:disabled,
+    button.btn-reject:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    textarea:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .back-btn {
+      margin-top: 1.25rem;
+      background: none;
+      border: none;
+      color: #4338ca;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      text-decoration: underline;
+    }
+
+    .platform-statuses {
+      margin-top: 1.5rem;
+      display: none;
+    }
+
+    .platform-statuses h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #6b7280;
+      margin-bottom: 0.75rem;
+    }
+
+    .platform-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.85rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      background: #fafafa;
+    }
+
+    .platform-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #1f2937;
+    }
+
+    .platform-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.65rem;
+      border-radius: 9999px;
+    }
+
+    .platform-badge.processing {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .platform-badge.posted {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .platform-badge.error {
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .platform-badge.rejected {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .platform-error-msg {
+      font-size: 0.8rem;
+      color: #dc2626;
+      margin-top: 0.25rem;
+      padding-left: 0.85rem;
+    }
+
+    .type-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .type-btn {
+      width: 100%;
+      padding: 1.2rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      background: #fafafa;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1f2937;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+      text-align: left;
+    }
+
+    .type-btn:hover {
+      border-color: #6366f1;
+      background: #eef2ff;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .type-btn span {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #6b7280;
+      margin-top: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="typePage">
+    <span class="badge">AI Automation</span>
+    <h1>AI Automation Post Generator</h1>
+    <p class="subtitle">Choose the type of post you'd like to create.</p>
+
+    <div class="type-buttons">
+      <button type="button" class="type-btn" id="btnGenerate">
+        Generate Post
+        <span>Let AI create a post from your topic</span>
+      </button>
+      <button type="button" class="type-btn" id="btnCustom">
+        Custom Post
+        <span>Write your own post and publish it directly</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card" id="customFormPage" style="display: none;">
+    <span class="badge">Custom Post</span>
+    <h1>Create Custom Post</h1>
+    <p class="subtitle">Write your post and upload an image to publish directly.</p>
+
+    <form id="customPostForm">
+      <div class="field">
+        <label for="customPostContent">Post <span class="required">*</span></label>
+        <textarea id="customPostContent" name="customPostContent" required placeholder="Write your post here..."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="customWorkflowImage">Image <span class="required">*</span></label>
+        <div class="file-field" id="customFileField">
+          <input type="file" id="customWorkflowImage" name="customWorkflowImage" accept="image/*" required>
+          <span class="file-label"><strong>Click to upload</strong> or drag and drop<br>PNG, JPG or GIF</span>
+          <div id="customFileName"></div>
+        </div>
+      </div>
+
+      <button type="submit" id="customSubmitBtn">Submit</button>
+      <div id="customStatus"></div>
+    </form>
+
+    <button type="button" class="back-btn" id="customBackBtn">&larr; Back to selection</button>
+  </div>
+
+  <div class="card" id="formPage" style="display: none;">
+    <span class="badge">AI Automation</span>
+    <h1>Create a Post</h1>
+    <p class="subtitle">Enter a topic and let AI create a post for you to review and publish.</p>
+
+    <form id="automationForm">
+      <div class="field">
+        <label for="topic">Topic <span class="required">*</span></label>
+        <textarea id="topic" name="topic" required placeholder="What would you like to post about?"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="workflowImage">Image <span class="required">*</span></label>
+        <div class="file-field" id="fileField">
+          <input type="file" id="workflowImage" name="workflowImage" accept="image/*" required>
+          <span class="file-label"><strong>Click to upload</strong> or drag and drop<br>PNG, JPG or GIF</span>
+          <div id="fileName"></div>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn">Submit</button>
+      <div id="status"></div>
+    </form>
+  </div>
+
+  <div class="card" id="postPage" style="display: none;">
+    <span class="badge">Generated Post</span>
+    <h1>Review your post</h1>
+    <p class="subtitle">Edit the post if you'd like, then accept or reject it.</p>
+
+    <div class="field">
+      <label for="postContent">Post <span class="required">*</span></label>
+      <textarea id="postContent"></textarea>
+      <div class="hint">You can only edit this post before accepting or rejecting it.</div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn-reject" id="rejectBtn">Reject</button>
+      <button type="button" class="btn-accept" id="acceptBtn">Accept</button>
+    </div>
+
+    <div id="postStatus"></div>
+
+    <button type="button" class="back-btn" id="backBtn">&larr; Back to form</button>
+  </div>
+
+  <div class="card" id="resultPage" style="display: none;">
+    <span class="badge">Posting Results</span>
+    <h1>Platform Status</h1>
+    <p class="subtitle">Your post is being published to the following platforms.</p>
+
+    <div class="platform-statuses" id="platformStatuses" style="display: block;">
+      <div class="platform-row">
+        <span class="platform-name">LinkedIn</span>
+        <span class="platform-badge processing" id="status-linkedin">PROCESSING</span>
+      </div>
+      <div class="platform-error-msg" id="error-linkedin" style="display:none;"></div>
+      <div class="platform-row">
+        <span class="platform-name">Instagram</span>
+        <span class="platform-badge processing" id="status-instagram">PROCESSING</span>
+      </div>
+      <div class="platform-error-msg" id="error-instagram" style="display:none;"></div>
+      <div class="platform-row">
+        <span class="platform-name">X</span>
+        <span class="platform-badge processing" id="status-x">PROCESSING</span>
+      </div>
+      <div class="platform-error-msg" id="error-x" style="display:none;"></div>
+      <div class="platform-row">
+        <span class="platform-name">Threads</span>
+        <span class="platform-badge processing" id="status-threads">PROCESSING</span>
+      </div>
+      <div class="platform-error-msg" id="error-threads" style="display:none;"></div>
+    </div>
+
+    <div id="resultStatus"></div>
+
+    <button type="button" class="back-btn" id="resultBackBtn">&larr; Back to form</button>
+  </div>
+
+  <script>
+    const WEBHOOK_URL = "http://localhost:5678/webhook-test/post generator";
+    const ACCEPT_REJECT_URL = "http://localhost:5678/webhook-test/post generator";
+    const GENERATION_TIMEOUT_MS = 120000;
+
+    const typePage = document.getElementById("typePage");
+    const customFormPage = document.getElementById("customFormPage");
+    const btnGenerate = document.getElementById("btnGenerate");
+    const btnCustom = document.getElementById("btnCustom");
+    const customForm = document.getElementById("customPostForm");
+    const customFileInput = document.getElementById("customWorkflowImage");
+    const customFileName = document.getElementById("customFileName");
+    const customFileField = document.getElementById("customFileField");
+    const customStatus = document.getElementById("customStatus");
+    const customSubmitBtn = document.getElementById("customSubmitBtn");
+    const customBackBtn = document.getElementById("customBackBtn");
+
+    const form = document.getElementById("automationForm");
+    const fileInput = document.getElementById("workflowImage");
+    const fileName = document.getElementById("fileName");
+    const fileField = document.getElementById("fileField");
+    const status = document.getElementById("status");
+    const submitBtn = document.getElementById("submitBtn");
+
+    const formPage = document.getElementById("formPage");
+    const postPage = document.getElementById("postPage");
+    const resultPage = document.getElementById("resultPage");
+    const postContent = document.getElementById("postContent");
+    const acceptBtn = document.getElementById("acceptBtn");
+    const rejectBtn = document.getElementById("rejectBtn");
+    const backBtn = document.getElementById("backBtn");
+    const postStatus = document.getElementById("postStatus");
+    const resultBackBtn = document.getElementById("resultBackBtn");
+    const resultStatus = document.getElementById("resultStatus");
+
+    let submittedData = null;
+    let decisionSubmitted = false;
+
+    const platforms = ["linkedin", "instagram", "x", "threads"];
+    const platformKeys = { linkedin: "linkedin", instagram: "instagram", x: "x", threads: "threads" };
+
+    function setPlatformStatus(platform, status, message) {
+      const badge = document.getElementById("status-" + platform);
+      const errorEl = document.getElementById("error-" + platform);
+      if (!badge) return;
+      badge.className = "platform-badge " + status.toLowerCase();
+      badge.textContent = status;
+      if (errorEl) {
+        if (status === "ERROR" && message) {
+          errorEl.textContent = message;
+          errorEl.style.display = "block";
+        } else {
+          errorEl.textContent = "";
+          errorEl.style.display = "none";
+        }
+      }
+    }
+
+    function resetPlatformStatuses() {
+      platforms.forEach(function(p) {
+        var badge = document.getElementById("status-" + p);
+        var errorEl = document.getElementById("error-" + p);
+        if (badge) { badge.className = "platform-badge processing"; badge.textContent = "PROCESSING"; }
+        if (errorEl) { errorEl.textContent = ""; errorEl.style.display = "none"; }
+      });
+    }
+
+    function setStatus(el, message, type) {
+      el.className = type;
+      el.textContent = message;
+      el.style.display = "block";
+    }
+
+    fileField.addEventListener("click", () => fileInput.click());
+
+    fileField.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      fileField.classList.add("dragover");
+    });
+
+    fileField.addEventListener("dragleave", () => fileField.classList.remove("dragover"));
+
+    fileField.addEventListener("drop", (e) => {
+      e.preventDefault();
+      fileField.classList.remove("dragover");
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        updateFileName();
+      }
+    });
+
+    fileInput.addEventListener("change", updateFileName);
+
+    function updateFileName() {
+      if (fileInput.files.length > 0) {
+        fileName.textContent = fileInput.files[0].name;
+        fileName.style.display = "block";
+      }
+    }
+
+    function showTypePage() {
+      typePage.style.display = "block";
+      formPage.style.display = "none";
+      customFormPage.style.display = "none";
+      postPage.style.display = "none";
+      resultPage.style.display = "none";
+    }
+
+    function showForm() {
+      typePage.style.display = "none";
+      formPage.style.display = "block";
+      customFormPage.style.display = "none";
+      postPage.style.display = "none";
+      resultPage.style.display = "none";
+    }
+
+    function showCustomForm() {
+      typePage.style.display = "none";
+      formPage.style.display = "none";
+      customFormPage.style.display = "block";
+      postPage.style.display = "none";
+      resultPage.style.display = "none";
+    }
+
+    function showPost() {
+      typePage.style.display = "none";
+      formPage.style.display = "none";
+      customFormPage.style.display = "none";
+      postPage.style.display = "block";
+      resultPage.style.display = "none";
+    }
+
+    function showResult() {
+      typePage.style.display = "none";
+      formPage.style.display = "none";
+      customFormPage.style.display = "none";
+      postPage.style.display = "none";
+      resultPage.style.display = "block";
+    }
+
+    function extractPost(responseText) {
+      try {
+        const data = JSON.parse(responseText);
+        if (typeof data === "string") return data;
+        if (data.post) return data.post;
+        if (data.content) return data.content;
+        if (data.text) return data.text;
+        if (data.message) return data.message;
+        if (data.generatedPost) return data.generatedPost;
+        if (data.generated_post) return data.generated_post;
+        if (data.data) {
+          if (typeof data.data === "string") return data.data;
+          if (data.data.post) return data.data.post;
+        }
+        return JSON.stringify(data, null, 2);
+      } catch {
+        return responseText;
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      submittedData = {
+        topic: document.getElementById("topic").value,
+        workflowImage: fileInput.files[0],
+      };
+
+      const formData = new FormData();
+      formData.append("topic", submittedData.topic);
+      formData.append("workflowImage", fileInput.files[0]);
+      formData.append("work", "generate");
+
+      submitBtn.disabled = true;
+      setStatus(status, "Generating Post...", "loading");
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), GENERATION_TIMEOUT_MS);
+
+      try {
+        const response = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error("Server responded with status " + response.status);
+        }
+
+        const responseText = await response.text();
+        const post = extractPost(responseText);
+
+        if (!post || post.trim() === "") {
+          throw new Error("The webhook responded but no post was found in the response.");
+        }
+
+        postContent.value = post;
+        postContent.disabled = false;
+        decisionSubmitted = false;
+        acceptBtn.disabled = false;
+        rejectBtn.disabled = false;
+        postStatus.style.display = "none";
+        status.style.display = "none";
+        showPost();
+      } catch (err) {
+        if (err.name === "AbortError") {
+          setStatus(status, "Generation timed out. The AI is taking too long. Please try again.", "error");
+        } else {
+          setStatus(status, "Submission failed: " + err.message, "error");
+        }
+      } finally {
+        clearTimeout(timeoutId);
+        submitBtn.disabled = false;
+      }
+    });
+
+    async function submitDecision(decision) {
+      if (!submittedData) return;
+
+      acceptBtn.disabled = true;
+      rejectBtn.disabled = true;
+
+      const reviewData = new FormData();
+      reviewData.append("decision", decision);
+      reviewData.append("work", "review");
+      reviewData.append("post", postContent.value);
+      if (submittedData.workflowImage) {
+        reviewData.append("image", submittedData.workflowImage);
+      }
+      reviewData.append("topic", submittedData.topic);
+
+      if (decision === "accept") {
+        resetPlatformStatuses();
+        showResult();
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+        try {
+          const response = await fetch(WEBHOOK_URL, {
+            method: "POST",
+            body: reviewData,
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            throw new Error("Server responded with status " + response.status);
+          }
+
+          const responseText = await response.text();
+          let result;
+          try { result = JSON.parse(responseText); } catch { result = null; }
+
+          if (Array.isArray(result)) {
+            var matched = {};
+            result.forEach(function(item) {
+              if (item && item.platform) {
+                var p = item.platform.toLowerCase();
+                var st = ((item.status || item.Status) || "").toUpperCase();
+                var msg = item.message || item.Message || "";
+                matched[p] = true;
+                if (st === "POSTED" || st === "POSTED SUCCESSFULLY") {
+                  setPlatformStatus(p, "POSTED", msg);
+                } else if (st === "ERROR") {
+                  setPlatformStatus(p, "ERROR", msg || "Posting failed");
+                } else {
+                  setPlatformStatus(p, "ERROR", msg || "Unexpected status: " + st);
+                }
+              }
+            });
+            platforms.forEach(function(p) {
+              if (!matched[p]) {
+                setPlatformStatus(p, "ERROR", "No response for this platform");
+              }
+            });
+          } else if (result && typeof result === "object") {
+            platforms.forEach(function(p) {
+              var key = platformKeys[p] || p;
+              if (result[key] && typeof result[key] === "object") {
+                var st = ((result[key].status || result[key].Status) || "").toUpperCase();
+                var msg = result[key].message || result[key].Message || "";
+                if (st === "POSTED" || st === "POSTED SUCCESSFULLY") {
+                  setPlatformStatus(p, "POSTED", msg);
+                } else if (st === "ERROR") {
+                  setPlatformStatus(p, "ERROR", msg || "Posting failed");
+                } else {
+                  setPlatformStatus(p, "ERROR", msg || "Unexpected status: " + st);
+                }
+              } else {
+                setPlatformStatus(p, "ERROR", "No response for this platform");
+              }
+            });
+          } else {
+            platforms.forEach(function(p) {
+              setPlatformStatus(p, "ERROR", "Invalid response format");
+            });
+          }
+
+          setStatus(resultStatus, "Posting complete. Review results above.", "success");
+        } catch (err) {
+          clearTimeout(timeoutId);
+          if (err.name === "AbortError") {
+            platforms.forEach(function(p) {
+              setPlatformStatus(p, "ERROR", "No response from n8n after 60 seconds");
+            });
+            setStatus(resultStatus, "Request timed out. Please try again.", "error");
+          } else {
+            platforms.forEach(function(p) {
+              setPlatformStatus(p, "ERROR", "Failed to receive posting result");
+            });
+            setStatus(resultStatus, "Submission failed: " + err.message, "error");
+          }
+        }
+      } else {
+        setStatus(postStatus, "Submitting reject...", "loading");
+
+        try {
+          const response = await fetch(WEBHOOK_URL, {
+            method: "POST",
+            body: reviewData,
+          });
+
+          if (!response.ok) {
+            throw new Error("Server responded with status " + response.status);
+          }
+
+          decisionSubmitted = true;
+          postContent.disabled = true;
+          setStatus(postStatus, "Post rejected.", "success");
+        } catch (err) {
+          setStatus(postStatus, "Submission failed: " + err.message, "error");
+          acceptBtn.disabled = false;
+          rejectBtn.disabled = false;
+        }
+      }
+    }
+
+    acceptBtn.addEventListener("click", () => submitDecision("accept"));
+    rejectBtn.addEventListener("click", () => submitDecision("reject"));
+    backBtn.addEventListener("click", showForm);
+    resultBackBtn.addEventListener("click", showTypePage);
+    btnGenerate.addEventListener("click", showForm);
+    btnCustom.addEventListener("click", showCustomForm);
+    customBackBtn.addEventListener("click", showTypePage);
+
+    customFileField.addEventListener("click", () => customFileInput.click());
+
+    customFileField.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      customFileField.classList.add("dragover");
+    });
+
+    customFileField.addEventListener("dragleave", () => customFileField.classList.remove("dragover"));
+
+    customFileField.addEventListener("drop", (e) => {
+      e.preventDefault();
+      customFileField.classList.remove("dragover");
+      if (e.dataTransfer.files.length > 0) {
+        customFileInput.files = e.dataTransfer.files;
+        updateCustomFileName();
+      }
+    });
+
+    customFileInput.addEventListener("change", updateCustomFileName);
+
+    function updateCustomFileName() {
+      if (customFileInput.files.length > 0) {
+        customFileName.textContent = customFileInput.files[0].name;
+        customFileName.style.display = "block";
+      }
+    }
+
+    customForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const postText = document.getElementById("customPostContent").value;
+
+      submittedData = {
+        automationName: "",
+        whatItDoes: "",
+        problemSolved: "",
+        howSolved: "",
+        githubLink: "",
+        techStack: "",
+        workflowImage: customFileInput.files[0],
+      };
+
+      const formData = new FormData();
+      formData.append("post", postText);
+      formData.append("workflowImage", customFileInput.files[0]);
+      formData.append("work", "Custom");
+
+      customSubmitBtn.disabled = true;
+
+      resetPlatformStatuses();
+      showResult();
+      setStatus(resultStatus, "Publishing your post...", "loading");
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+      try {
+        const response = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error("Server responded with status " + response.status);
+        }
+
+        const responseText = await response.text();
+        let result;
+        try { result = JSON.parse(responseText); } catch { result = null; }
+
+        if (Array.isArray(result)) {
+          var matched = {};
+          result.forEach(function(item) {
+            if (item && item.platform) {
+              var p = item.platform.toLowerCase();
+              var st = ((item.status || item.Status) || "").toUpperCase();
+              var msg = item.message || item.Message || "";
+              matched[p] = true;
+              if (st === "POSTED" || st === "POSTED SUCCESSFULLY") {
+                setPlatformStatus(p, "POSTED", msg);
+              } else if (st === "ERROR") {
+                setPlatformStatus(p, "ERROR", msg || "Posting failed");
+              } else {
+                setPlatformStatus(p, "ERROR", msg || "Unexpected status: " + st);
+              }
+            }
+          });
+          platforms.forEach(function(p) {
+            if (!matched[p]) {
+              setPlatformStatus(p, "ERROR", "No response for this platform");
+            }
+          });
+        } else if (result && typeof result === "object") {
+          platforms.forEach(function(p) {
+            var key = platformKeys[p] || p;
+            if (result[key] && typeof result[key] === "object") {
+              var st = ((result[key].status || result[key].Status) || "").toUpperCase();
+              var msg = result[key].message || result[key].Message || "";
+              if (st === "POSTED" || st === "POSTED SUCCESSFULLY") {
+                setPlatformStatus(p, "POSTED", msg);
+              } else if (st === "ERROR") {
+                setPlatformStatus(p, "ERROR", msg || "Posting failed");
+              } else {
+                setPlatformStatus(p, "ERROR", msg || "Unexpected status: " + st);
+              }
+            } else {
+              setPlatformStatus(p, "ERROR", "No response for this platform");
+            }
+          });
+        } else {
+          platforms.forEach(function(p) {
+            setPlatformStatus(p, "ERROR", "Invalid response format");
+          });
+        }
+
+        setStatus(resultStatus, "Posting complete. Review results above.", "success");
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === "AbortError") {
+          platforms.forEach(function(p) {
+            setPlatformStatus(p, "ERROR", "No response from n8n after 60 seconds");
+          });
+          setStatus(resultStatus, "Request timed out. Please try again.", "error");
+        } else {
+          platforms.forEach(function(p) {
+            setPlatformStatus(p, "ERROR", "Failed to receive posting result");
+          });
+          setStatus(resultStatus, "Submission failed: " + err.message, "error");
+        }
+      } finally {
+        clearTimeout(timeoutId);
+        customSubmitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
