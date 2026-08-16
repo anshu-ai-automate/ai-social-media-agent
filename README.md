@@ -66,7 +66,7 @@ ai-social-media-agent/
 - n8n self-hosted (Docker recommended)
 - Groq API key — [console.groq.com](https://console.groq.com)
 - Google Gemini API key — [aistudio.google.com](https://aistudio.google.com)
-- LinkedIn OAuth credentials — via Google Cloud Console
+- LinkedIn OAuth credentials — [Linkedin developer](https://developer.linkedin.com)
 - upload-post.com account and API key — [upload-post.com](https://upload-post.com)
 - Gmail OAuth credentials — via Google Cloud Console
 
