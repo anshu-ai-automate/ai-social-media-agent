@@ -1,0 +1,1140 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "llama3.2:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        1264
+      ],
+      "id": "56c97e2a-a18f-4e8b-a291-7f7b87f33d12",
+      "name": "Ollama Chat Model1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "post generator",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -784,
+        784
+      ],
+      "id": "1f8124fc-58e6-46a4-a0c3-4fdc938573cd",
+      "name": "Form webhook1",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7e9118cc-289b-4494-af64-8c6c3ba6635e",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        1040
+      ],
+      "id": "44cc9194-ce2d-44ae-942c-6f4a8e0cfe0f",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional social media content writer.\n\nYour job is to create a high-quality social media post based ONLY on the topic provided by the user.\n\ntopic \n\nWrite a post that is:\n- Clear and easy to understand\n- Engaging but not exaggerated\n- Professional and natural\n- Suitable for LinkedIn and other social media platforms\n- Useful to the reader\n- Written in a human tone\n\nStructure the post naturally:\n1. Start with a strong opening/hook.\n2. Explain the main idea clearly.\n3. Add useful insight, examples, or takeaways when appropriate.\n4. End with a simple conclusion or call to action when appropriate.\n5. Add 4\u20138 relevant hashtags.\n\nDo not invent specific facts, statistics, achievements, companies, links, or personal experiences that were not provided by the user.\n\nDo not mention that you are an AI.\n\nDo not explain your writing process.\n\nReturn ONLY the final post text. Do not return JSON, XML, markdown code blocks, reasoning, or metadata.",
+        "needsFallback": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -176,
+        1040
+      ],
+      "id": "08e41565-3f48-401c-9ef6-2c65511ac507",
+      "name": "Generate post1",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        400,
+        1040
+      ],
+      "id": "58a990f7-59b4-4a0d-a9b0-13d0a32b33c4",
+      "name": "Send POST to webhook1",
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3d58afaa-659c-478b-b0f6-8c52c289d06b",
+                    "leftValue": "={{ $json.body.work }}",
+                    "rightValue": "Custom",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "custom"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.work }}",
+                    "rightValue": "review",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "0cad62f0-c06b-47ba-ab4c-84305b690d09"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "review"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1a6cc5be-63c8-4701-b21e-44c8866196ff",
+                    "leftValue": "={{ $json.body.work }}",
+                    "rightValue": "generate",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "generate "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -560,
+        768
+      ],
+      "id": "5eb5e103-1b92-4bec-9bae-23f67315bef5",
+      "name": "Separate work1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "431d4a11-04e5-4edb-99b2-4e0bc1ed7d43",
+              "leftValue": "={{ $json.body.decision }}",
+              "rightValue": "accept",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -160,
+        544
+      ],
+      "id": "1d093c82-e7c0-4f04-b2fe-b2c8f39261d5",
+      "name": "Get review1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        1264
+      ],
+      "id": "f82082a0-1718-48eb-9dc9-2d67e2eb72be",
+      "name": "Think1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "384f1c0a-69b7-4153-a363-4b3ea29e1817",
+              "name": "body.post",
+              "value": "={{ $json.body.post }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        672
+      ],
+      "id": "6a2482e9-2d00-455b-956b-876139bbd2f9",
+      "name": "Edit Fields8"
+    },
+    {
+      "parameters": {
+        "content": "# Generate post",
+        "height": 448,
+        "width": 816,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -224,
+        960
+      ],
+      "typeVersion": 1,
+      "id": "d38c072b-1173-401e-bb60-eb9477265b14",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "# post accepted or rejected",
+        "height": 368,
+        "width": 736,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -224,
+        464
+      ],
+      "typeVersion": 1,
+      "id": "14e5b697-fafc-4019-9124-9c1916fdfabd",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "# Upload post on social media\n",
+        "height": 784,
+        "width": 384
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "5eeecb74-0acd-4ea8-856c-cebef5e40373",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.body.post }}{{ $json.Post }}",
+        "shareMediaCategory": "IMAGE",
+        "binaryPropertyName": "image",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        768,
+        448
+      ],
+      "id": "79506ed0-09f3-45d2-a0bf-f3d6cec40d4c",
+      "name": "Create a post1",
+      "executeOnce": false,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 4000,
+      "onError": "continueErrorOutput",
+      "notes": "Linkedin "
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        352,
+        544
+      ],
+      "id": "21143b97-9eb4-429b-a46d-6b965894c2f8",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload_photos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "user",
+              "value": "YOUR_USERNAME"
+            },
+            {
+              "name": "platform[]",
+              "value": "x"
+            },
+            {
+              "name": "title",
+              "value": "={{ $('Merge2').item.json.body.post }}{{ $json.Post }}"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "photos[]",
+              "inputDataFieldName": "image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        768,
+        784
+      ],
+      "id": "7f673428-e8fe-470d-b54c-660b2488b3e2",
+      "name": "x1",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 4000,
+      "onError": "continueErrorOutput",
+      "notes": "x"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload_photos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "user",
+              "value": "YOUR_USERNAME"
+            },
+            {
+              "name": "platform[]",
+              "value": "instagram"
+            },
+            {
+              "name": "title",
+              "value": "={{ $('Merge2').item.json.body.post }}{{ $json.Post }}"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "photos[]",
+              "inputDataFieldName": "image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        768,
+        608
+      ],
+      "id": "a6485f5a-f077-466c-bc81-741b290a1858",
+      "name": "instagram1",
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 4000,
+      "onError": "continueErrorOutput",
+      "notes": "Instagram"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload_photos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "YOUR_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "user",
+              "value": "YOUR_USERNAME"
+            },
+            {
+              "name": "platform[]",
+              "value": "threads"
+            },
+            {
+              "name": "title",
+              "value": "={{ $('Merge2').item.json.body.post }}{{ $json.Post }}"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "photos[]",
+              "inputDataFieldName": "image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        768,
+        272
+      ],
+      "id": "a23b7a7e-1978-44b9-9a7d-dc23eedff248",
+      "name": "Threads1",
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "executeOnce": false,
+      "alwaysOutputData": false,
+      "maxTries": 2,
+      "waitBetweenTries": 4000,
+      "onError": "continueErrorOutput",
+      "notes": "Threads"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "912ef0d7-fbc8-473d-b70c-0b9103d09ec1",
+              "name": "platform",
+              "value": "threads",
+              "type": "string"
+            },
+            {
+              "id": "4f818494-3b6f-43b9-b671-6767c9a05ef4",
+              "name": "Status",
+              "value": "={{ $json.error ? \"Error\" : \"Posted\" }}",
+              "type": "string"
+            },
+            {
+              "id": "d80a4f0a-ad77-49de-9a35-b149c5d37947",
+              "name": "Message",
+              "value": "={{ $json.error || \"Posted successfully\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1328,
+        272
+      ],
+      "id": "b4664ad4-de70-4fe4-9395-498f3e824c5e",
+      "name": "threads1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "912ef0d7-fbc8-473d-b70c-0b9103d09ec1",
+              "name": "platform",
+              "value": "=instagram",
+              "type": "string"
+            },
+            {
+              "id": "4f818494-3b6f-43b9-b671-6767c9a05ef4",
+              "name": "Status",
+              "value": "={{ $json.error ? \"Error\" : \"Posted\" }}",
+              "type": "string"
+            },
+            {
+              "id": "d80a4f0a-ad77-49de-9a35-b149c5d37947",
+              "name": "Message",
+              "value": "={{ $json.error || \"Posted successfully\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1328,
+        608
+      ],
+      "id": "2cfb590d-5cb0-49fd-9092-9f98addcfb15",
+      "name": "Instagram1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "912ef0d7-fbc8-473d-b70c-0b9103d09ec1",
+              "name": "platform",
+              "value": "X",
+              "type": "string"
+            },
+            {
+              "id": "4f818494-3b6f-43b9-b671-6767c9a05ef4",
+              "name": "Status",
+              "value": "={{ $json.error ? \"Error\" : \"Posted\" }}",
+              "type": "string"
+            },
+            {
+              "id": "d80a4f0a-ad77-49de-9a35-b149c5d37947",
+              "name": "Message",
+              "value": "={{ $json.error || \"Posted successfully\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1328,
+        800
+      ],
+      "id": "c93911f4-14e4-4baf-91e0-ab234d0d7675",
+      "name": "X1"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1632,
+        480
+      ],
+      "id": "5e0afbd5-c21c-4074-8276-a7c410a6c7f3",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "912ef0d7-fbc8-473d-b70c-0b9103d09ec1",
+              "name": "platform",
+              "value": "Linkedin",
+              "type": "string"
+            },
+            {
+              "id": "4f818494-3b6f-43b9-b671-6767c9a05ef4",
+              "name": "status",
+              "value": "={{ $json.error ? \"Error\" : \"Posted\" }}",
+              "type": "string"
+            },
+            {
+              "id": "d80a4f0a-ad77-49de-9a35-b149c5d37947",
+              "name": "message",
+              "value": "={{ $json.error || \"Posted successfully\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1328,
+        432
+      ],
+      "id": "7b6961a2-22f6-46d5-904c-e982cfb74c11",
+      "name": "Linkedin1"
+    },
+    {
+      "parameters": {
+        "content": "# Review result to webhook",
+        "height": 800,
+        "width": 1044,
+        "color": "#04342C"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "64eadaeb-95b6-4098-9717-1463bfecc025",
+      "name": "Sticky Note16"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1840,
+        512
+      ],
+      "id": "fc018f09-72b3-47f8-bb67-82215bf746d2",
+      "name": "Wait3",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "13b03852-685b-4b9a-8a5f-1158bfa3e231",
+              "name": "Post",
+              "value": "={{ $json.body.post }}",
+              "type": "string"
+            },
+            {
+              "id": "2121bf31-0a4f-49a5-8f19-e3841b5bced1",
+              "name": "image",
+              "value": "workflowImage",
+              "type": "binary"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        224
+      ],
+      "id": "0c103359-19df-4b69-9f02-4216de7467cd",
+      "name": "custom post1"
+    },
+    {
+      "parameters": {
+        "content": "# custom post",
+        "height": 256,
+        "width": 672,
+        "color": "#39041B"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        128
+      ],
+      "typeVersion": 1,
+      "id": "bc3dd9dc-0916-44f1-a31a-39dea5e0855d",
+      "name": "Sticky Note17"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($input.all().map(item => item.json)) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2032,
+        512
+      ],
+      "id": "6a785f8d-b6b9-4c1b-9eee-63179d566fc1",
+      "name": "Success/error response1",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -176,
+        224
+      ],
+      "id": "48c4a2c9-ed33-4f01-ba8b-364c9c7cfaf0",
+      "name": "Wait4",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        224
+      ],
+      "id": "e3626374-adb7-4256-b220-56a6bb5dbfc9",
+      "name": "Wait5",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "content": "#  Get detail from WEbhook",
+        "height": 304,
+        "width": 512,
+        "color": "#083E3F"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -864,
+        672
+      ],
+      "typeVersion": 1,
+      "id": "908bc292-a28a-4eca-8658-e22ccc04b1ac",
+      "name": "Sticky Note18"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        1264
+      ],
+      "id": "46d04038-667c-468b-b946-0ba9b8ced126",
+      "name": "Google Gemini Chat Model2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate post1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form webhook1": {
+      "main": [
+        [
+          {
+            "node": "Separate work1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Send POST to webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate post1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separate work1": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get review1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate post1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get review1": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generate post1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields8": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create a post1": {
+      "main": [
+        [
+          {
+            "node": "Linkedin1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Linkedin1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Create a post1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "x1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Threads1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "instagram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "x1": {
+      "main": [
+        [
+          {
+            "node": "X1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "X1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "instagram1": {
+      "main": [
+        [
+          {
+            "node": "Instagram1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Instagram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threads1": {
+      "main": [
+        [
+          {
+            "node": "threads1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "threads1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "threads1": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram1": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "X1": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linkedin1": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Success/error response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "custom post1": {
+      "main": [
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "custom post1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "Threads1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a post1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "instagram1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "x1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate post1",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "YOUR_VERSION_ID",
+  "meta": {
+    "instanceId": "YOUR_INSTANCE_ID"
+  },
+  "nodeGroups": [],
+  "id": "YOUR_WORKFLOW_ID",
+  "tags": []
+}
