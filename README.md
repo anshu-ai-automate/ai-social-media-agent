@@ -7,10 +7,12 @@ An AI-powered social media automation agent with a custom frontend UI. Submit yo
 ## 📸 Screenshots
 
 ### Frontend UI
-![Frontend](assets/frontend-screenshot.png)
+![Frontend](<img width="1536" height="1024" alt="afc4fcf6-5e71-4eb8-a1b7-2b590ce53be2" src="https://github.com/user-attachments/assets/8e4007ce-13a2-49ff-8d2a-aa620d2ad4bf" />
+)
 
 ### n8n Workflow
-![Workflow](assets/workflow-screenshot.png)
+![Workflow](<img width="1625" height="730" alt="image" src="https://github.com/user-attachments/assets/20cc98a5-a6c3-41e2-ada9-ee8811e181e4" />
+)
 
 ---
 
