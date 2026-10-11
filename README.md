@@ -141,5 +141,4 @@ If any error: Gmail notification sent automatically
 
 ## 📄 License
 
-MIT License — feel free to use and modify..
-
+MIT License — feel free to use and modify.
